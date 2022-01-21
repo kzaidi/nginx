@@ -1,0 +1,44 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        command: build
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(tag)
+- task: Docker@2
+  inputs:
+    containerRegistry: 'Aqua Registry'
+    command: 'login'
+- task: aquasecScanner@4
+  inputs:
+    image: '$(tag)'
+    scanType: 'local'
+    register: false
+    hideBase: false
+    showNegligible: false
+    windowsScannerVersion: '4.2.0'
+    scanner: 'registry.aquasec.com/scanner:6.5'
+    registry: 'Docker'
+    connection: 'AquaScannerSaaS'
