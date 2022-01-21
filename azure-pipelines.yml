@@ -27,12 +27,12 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
           $(tag)
-- task: Docker@2
-  inputs:
-    containerRegistry: 'Aqua Registry'
-    command: 'login'
-- task: aquasecScanner@4
-  inputs:
+   - task: Docker@2
+     inputs:
+     containerRegistry: 'Aqua Registry'
+     command: 'login'
+   - task: aquasecScanner@4
+    inputs:
     image: '$(tag)'
     scanType: 'local'
     register: false
